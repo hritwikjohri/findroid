@@ -49,7 +49,6 @@ class MainActivity : AppCompatActivity() {
         applyTheme()
         setupActivity()
 
-        // Temp fix insets because SDK 35 enables edge to edge by default. This will probably be removed once we move to compose
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val bars = insets.getInsets(
                 WindowInsetsCompat.Type.systemBars()
