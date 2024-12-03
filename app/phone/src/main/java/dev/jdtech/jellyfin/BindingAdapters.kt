@@ -25,6 +25,22 @@ fun bindItemImage(imageView: ImageView, item: BaseItemDto) {
         .posterDescription(item.name)
 }
 
+fun bindLogoImage(imageView: ImageView, item: FindroidItem) {
+    val api = JellyfinApi.getInstance(imageView.context.applicationContext)
+
+    imageView.load("${api.api.baseUrl}/Items/${item.id}/Images/${ImageType.LOGO}") {
+        crossfade(true)
+        listener(
+            onSuccess = { _, _ ->
+                imageView.visibility = View.VISIBLE
+            },
+            onError = { _, _ ->
+                imageView.visibility = View.GONE
+            }
+        )
+    }
+}
+
 fun bindItemImage(imageView: ImageView, item: FindroidItem) {
     val itemId = when (item) {
         is FindroidEpisode -> item.seriesId

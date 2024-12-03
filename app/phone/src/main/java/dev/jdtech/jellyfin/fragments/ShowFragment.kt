@@ -23,8 +23,10 @@ import dev.jdtech.jellyfin.adapters.PersonListAdapter
 import dev.jdtech.jellyfin.adapters.ViewItemListAdapter
 import dev.jdtech.jellyfin.bindCardItemImage
 import dev.jdtech.jellyfin.bindItemBackdropImage
+import dev.jdtech.jellyfin.bindLogoImage
 import dev.jdtech.jellyfin.databinding.FragmentShowBinding
 import dev.jdtech.jellyfin.dialogs.ErrorDialogFragment
+import dev.jdtech.jellyfin.dialogs.getVideoVersionDialog
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidSeason
 import dev.jdtech.jellyfin.models.FindroidSourceType
@@ -122,10 +124,6 @@ class ShowFragment : Fragment() {
             }
         }
 
-        binding.nextUp.setOnClickListener {
-            navigateToEpisodeBottomSheetFragment(viewModel.nextUp!!)
-        }
-
         binding.seasonsRecyclerView.adapter =
             ViewItemListAdapter(
                 { season ->
@@ -141,6 +139,20 @@ class ShowFragment : Fragment() {
             binding.itemActions.playButton.isEnabled = false
             binding.itemActions.playButton.setIconResource(android.R.color.transparent)
             binding.itemActions.progressPlay.isVisible = true
+            if (viewModel.item.sources.filter { it.type == FindroidSourceType.REMOTE }.size > 1) {
+                val dialog = getVideoVersionDialog(
+                    requireContext(),
+                    viewModel.item,
+                    onItemSelected = {
+                        playerViewModel.loadPlayerItems(viewModel.item, it)
+                    },
+                    onCancel = {
+                        playButtonNormal()
+                    },
+                )
+                dialog.show()
+                return@setOnClickListener
+            }
             playerViewModel.loadPlayerItems(viewModel.item)
         }
 
@@ -168,7 +180,6 @@ class ShowFragment : Fragment() {
             val downloaded = item.isDownloaded()
             val canDownload = item.canDownload && item.sources.any { it.type == FindroidSourceType.REMOTE }
 
-            binding.originalTitle.isVisible = item.originalTitle != item.name
             if (item.trailer != null) {
                 binding.itemActions.trailerButton.isVisible = true
             }
@@ -200,8 +211,12 @@ class ShowFragment : Fragment() {
                 }
             }
 
-            binding.name.text = item.name
-            binding.originalTitle.text = item.originalTitle
+            binding.logo?.let { bindLogoImage(it, item) }
+
+            binding.name?.text = item.name
+            binding.name?.visibility = View.VISIBLE
+
+            binding.name?.text = item.name
             if (dateString.isEmpty()) {
                 binding.year.isVisible = false
             } else {
@@ -219,6 +234,7 @@ class ShowFragment : Fragment() {
             }
 
             binding.info.description.text = fromHtml(item.overview, 0)
+            setUpDescription()
             binding.info.genres.text = genresString
             binding.info.genresGroup.isVisible = item.genres.isNotEmpty()
             binding.info.director.text = director?.name
@@ -226,31 +242,12 @@ class ShowFragment : Fragment() {
             binding.info.writers.text = writersString
             binding.info.writersGroup.isVisible = writers.isNotEmpty()
 
-            binding.nextUpLayout.isVisible = nextUp != null
-            if (nextUp?.indexNumberEnd == null) {
-                binding.nextUpName.text = getString(
-                    CoreR.string.episode_name_extended,
-                    nextUp?.parentIndexNumber,
-                    nextUp?.indexNumber,
-                    nextUp?.name,
-                )
-            } else {
-                binding.nextUpName.text = getString(
-                    CoreR.string.episode_name_extended_with_end,
-                    nextUp?.parentIndexNumber,
-                    nextUp?.indexNumber,
-                    nextUp?.indexNumberEnd,
-                    nextUp?.name,
-                )
-            }
-
             binding.seasonsLayout.isVisible = seasons.isNotEmpty()
             val seasonsAdapter = binding.seasonsRecyclerView.adapter as ViewItemListAdapter
             seasonsAdapter.submitList(seasons)
             val actorsAdapter = binding.peopleRecyclerView.adapter as PersonListAdapter
             actorsAdapter.submitList(actors)
             bindItemBackdropImage(binding.itemBanner, item)
-            if (nextUp != null) bindCardItemImage(binding.nextUpImage, nextUp!!)
         }
         binding.loadingIndicator.isVisible = false
         binding.mediaInfoScrollview.isVisible = true
@@ -302,7 +299,7 @@ class ShowFragment : Fragment() {
     }
 
     private fun bindPlayerItemsError(error: Exception) {
-        Timber.e(error.message)
+        Timber.e(error)
         binding.playerItemsError.visibility = View.VISIBLE
         playButtonNormal()
         binding.playerItemsErrorDetails.setOnClickListener {
@@ -351,5 +348,29 @@ class ShowFragment : Fragment() {
         findNavController().safeNavigate(
             ShowFragmentDirections.actionShowFragmentToPersonDetailFragment(personId),
         )
+    }
+
+    private fun setUpDescription() {
+        val description = binding.info.description
+        val readMore = binding.info.readMore
+
+        description.post {
+            if ((description.layout?.getEllipsisCount(description.lineCount - 1) ?: 0) > 0) {
+                readMore.visibility = View.VISIBLE
+                readMore.setOnClickListener {
+                    if (description.maxLines == 2) {
+                        // Expand
+                        description.maxLines = Int.MAX_VALUE
+                        readMore.text = getString(CoreR.string.read_less)
+                    } else {
+                        // Collapse
+                        description.maxLines = 2
+                        readMore.text = getString(CoreR.string.read_more)
+                    }
+                }
+            } else {
+                readMore.visibility = View.GONE
+            }
+        }
     }
 }

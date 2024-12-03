@@ -25,6 +25,7 @@ import dev.jdtech.jellyfin.AppPreferences
 import dev.jdtech.jellyfin.R
 import dev.jdtech.jellyfin.adapters.PersonListAdapter
 import dev.jdtech.jellyfin.bindItemBackdropImage
+import dev.jdtech.jellyfin.bindLogoImage
 import dev.jdtech.jellyfin.databinding.FragmentMovieBinding
 import dev.jdtech.jellyfin.dialogs.ErrorDialogFragment
 import dev.jdtech.jellyfin.dialogs.getStorageSelectionDialog
@@ -274,7 +275,6 @@ class MovieFragment : Fragment() {
                 item.canDownload && item.sources.any { it.type == FindroidSourceType.REMOTE }
             val canDelete = item.sources.any { it.type == FindroidSourceType.LOCAL }
 
-            binding.originalTitle.isVisible = item.originalTitle != item.name
             if (item.trailer != null) {
                 binding.itemActions.trailerButton.isVisible = true
             }
@@ -297,8 +297,11 @@ class MovieFragment : Fragment() {
                 false -> binding.itemActions.downloadButton.isVisible = false
             }
 
-            binding.name.text = item.name
-            binding.originalTitle.text = item.originalTitle
+            bindLogoImage(binding.logo, item)
+
+            binding.info.description.text = fromHtml(item.overview, 0)
+            setUpDescription()
+
             if (dateString.isEmpty()) {
                 binding.year.isVisible = false
             } else {
@@ -510,5 +513,29 @@ class MovieFragment : Fragment() {
         findNavController().safeNavigate(
             MovieFragmentDirections.actionMovieFragmentToPersonDetailFragment(personId),
         )
+    }
+
+    private fun setUpDescription() {
+        val description = binding.info.description
+        val readMore = binding.info.readMore
+
+        description.post {
+            if ((description.layout?.getEllipsisCount(description.lineCount - 1) ?: 0) > 0) {
+                readMore.visibility = View.VISIBLE
+                readMore.setOnClickListener {
+                    if (description.maxLines == 2) {
+                        // Expand
+                        description.maxLines = Int.MAX_VALUE
+                        readMore.text = getString(CoreR.string.read_less)
+                    } else {
+                        // Collapse
+                        description.maxLines = 2
+                        readMore.text = getString(CoreR.string.read_more)
+                    }
+                }
+            } else {
+                readMore.visibility = View.GONE
+            }
+        }
     }
 }

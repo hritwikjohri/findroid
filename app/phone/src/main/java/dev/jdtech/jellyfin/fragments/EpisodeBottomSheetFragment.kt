@@ -73,8 +73,22 @@ class EpisodeBottomSheetFragment : BottomSheetDialogFragment() {
 
         binding.itemActions.playButton.setOnClickListener {
             binding.itemActions.playButton.isEnabled = false
-            binding.itemActions.playButton.setIconResource(AndroidR.color.transparent)
+            binding.itemActions.playButton.setIconResource(android.R.color.transparent)
             binding.itemActions.progressPlay.isVisible = true
+            if (viewModel.item.sources.filter { it.type == FindroidSourceType.REMOTE }.size > 1) {
+                val dialog = getVideoVersionDialog(
+                    requireContext(),
+                    viewModel.item,
+                    onItemSelected = {
+                        playerViewModel.loadPlayerItems(viewModel.item, it)
+                    },
+                    onCancel = {
+                        playButtonNormal()
+                    },
+                )
+                dialog.show()
+                return@setOnClickListener
+            }
             playerViewModel.loadPlayerItems(viewModel.item)
         }
 
