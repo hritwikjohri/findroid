@@ -2,9 +2,11 @@ package dev.jdtech.jellyfin
 
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.navigation.NavController
@@ -45,22 +47,33 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        scheduleUserDataSync()
-        applyTheme()
-        setupActivity()
 
-        // Temp fix insets because SDK 35 enables edge to edge by default. This will probably be removed once we move to compose
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            val bars = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars()
-                    or WindowInsetsCompat.Type.displayCutout(),
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insets = windowInsets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or
+                        WindowInsetsCompat.Type.displayCutout()
             )
-            v.updatePadding(
-                left = bars.left,
-                top = bars.top,
-                right = bars.right,
-                bottom = bars.bottom,
+
+            binding.mainToolbar.updatePadding(
+                top = insets.top
             )
+
+            (binding.navHostFragmentActivityMain.layoutParams as ViewGroup.MarginLayoutParams).apply {
+                leftMargin = insets.left
+                rightMargin = insets.right
+            }
+
+            binding.navView.updatePadding(
+                left = insets.left,
+                right = insets.right,
+                bottom = insets.bottom
+            )
+
             WindowInsetsCompat.CONSUMED
         }
     }

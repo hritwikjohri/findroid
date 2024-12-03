@@ -9,6 +9,13 @@
     <style name="Theme.Findroid" parent="Base.Theme.Findroid" />
 
     <style name="Base.Theme.Findroid" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <!-- Use light status bar icons for light theme -->
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+        <!-- Use light nav bar icons for light theme -->
+        <item name="android:windowLightNavigationBar">?attr/isLightTheme</item>
+
         <!-- Primary -->
         <item name="colorPrimary">@color/primary_light</item>
         <item name="colorOnPrimary">@android:color/white</item>
@@ -32,10 +39,6 @@
         <item name="colorError">@color/red</item>
         <item name="colorOnError">@android:color/white</item>
 
-        <!-- Status bar -->
-        <item name="android:statusBarColor">?attr/colorSurface</item>
-        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
-
         <!-- Shapes -->
         <item name="shapeAppearanceCornerExtraSmall">
             @style/ShapeAppearance.Findroid.Corner.ExtraSmall
@@ -44,10 +47,6 @@
 
         <!-- Toolbar -->
         <item name="toolbarStyle">@style/Widget.Material3.Toolbar.Surface</item>
-
-        <!-- Navigation bar -->
-        <item name="android:navigationBarColor">?attr/colorSurface</item>
-        <item name="android:windowLightNavigationBar">?attr/isLightTheme</item>
 
         <!-- Extra -->
         <item name="elevationOverlayEnabled">false</item>
