@@ -11,10 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -78,24 +75,6 @@ class MovieFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-
-            binding.itemBanner.updatePadding(
-                top = -insets.top
-            )
-
-            binding.mediaInfoScrollview.updatePadding(
-                bottom = insets.bottom
-            )
-
-            binding.loadingIndicator.updatePadding(
-                top = insets.top
-            )
-
-            WindowInsetsCompat.CONSUMED
-        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -353,7 +332,7 @@ class MovieFragment : Fragment() {
                             DisplayProfile.HDR10,
                             DisplayProfile.HDR10_PLUS,
                             DisplayProfile.HLG,
-                            -> {
+                                -> {
                                 videoProfileChip.chipStartPadding = .0f
                                 true
                             }
