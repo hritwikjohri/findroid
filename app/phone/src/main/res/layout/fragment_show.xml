@@ -51,7 +51,7 @@
                 <ImageView
                     android:id="@+id/logo"
                     android:layout_width="240dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="120.dp"
                     android:layout_marginBottom="24dp"
                     android:adjustViewBounds="true"
                     android:scaleType="fitCenter"
