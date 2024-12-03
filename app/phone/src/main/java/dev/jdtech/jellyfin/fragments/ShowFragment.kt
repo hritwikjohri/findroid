@@ -21,7 +21,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.jdtech.jellyfin.AppPreferences
 import dev.jdtech.jellyfin.adapters.PersonListAdapter
 import dev.jdtech.jellyfin.adapters.ViewItemListAdapter
-import dev.jdtech.jellyfin.bindCardItemImage
 import dev.jdtech.jellyfin.bindItemBackdropImage
 import dev.jdtech.jellyfin.bindLogoImage
 import dev.jdtech.jellyfin.databinding.FragmentShowBinding

@@ -1,6 +1,7 @@
 package dev.jdtech.jellyfin.adapters
 
 import android.text.Html.fromHtml
+import android.text.TextUtils
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +12,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import dev.jdtech.jellyfin.bindCardItemImage
 import dev.jdtech.jellyfin.bindItemBackdropById
-import dev.jdtech.jellyfin.bindSeasonPoster
 import dev.jdtech.jellyfin.databinding.EpisodeItemBinding
 import dev.jdtech.jellyfin.databinding.SeasonHeaderBinding
 import dev.jdtech.jellyfin.models.EpisodeItem
@@ -30,10 +30,7 @@ class EpisodeListAdapter(
     class HeaderViewHolder(private var binding: SeasonHeaderBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(header: EpisodeItem.Header) {
-            binding.seasonName.text = header.seasonName
-            binding.seriesName.text = header.seriesName
             bindItemBackdropById(binding.itemBanner, header.seriesId)
-            bindSeasonPoster(binding.seasonPoster, header.seasonId)
         }
     }
 
@@ -47,6 +44,11 @@ class EpisodeListAdapter(
             }
 
             binding.episodeOverview.text = fromHtml(episode.overview, 0)
+            binding.episodeOverview.apply {
+                maxLines = 2
+                ellipsize = TextUtils.TruncateAt.END
+                text = fromHtml(episode.overview, 0)
+            }
 
             if (episode.playbackPositionTicks > 0) {
                 binding.progressBar.layoutParams.width = TypedValue.applyDimension(
